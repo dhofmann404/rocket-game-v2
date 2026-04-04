@@ -186,7 +186,7 @@ class Rocket extends PositionComponent
     // Nozzle
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-          Rect.fromLTWH(w * 0.28, h * 0.74, w * 0.44, h * 0.07),
+          Rect.fromLTWH(w * 0.28, h * 0.74, w * 0.44, h * 0.13),
           const Radius.circular(3)),
       Paint()..color = const Color(0xFF4A0000),
     );
