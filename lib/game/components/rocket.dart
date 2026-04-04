@@ -141,7 +141,7 @@ class Rocket extends PositionComponent
     }
 
     // Fins
-    final finPaint = Paint()..color = const Color(0xFF37474F);
+    final finPaint = Paint()..color = const Color(0xFF8B0000);
     canvas.drawPath(
       Path()
         ..moveTo(w * 0.12, h * 0.52)
@@ -165,7 +165,7 @@ class Rocket extends PositionComponent
       ..lineTo(w * 0.08, h * 0.76)
       ..lineTo(w * 0.92, h * 0.76)
       ..close();
-    canvas.drawPath(body, Paint()..color = const Color(0xFF546E7A));
+    canvas.drawPath(body, Paint()..color = const Color(0xFFE53935));
     canvas.drawPath(
       body,
       Paint()
@@ -179,7 +179,7 @@ class Rocket extends PositionComponent
 
     // Cockpit
     canvas.drawCircle(
-        Offset(w * 0.5, h * 0.32), w * 0.13, Paint()..color = const Color(0xFF29B6F6));
+        Offset(w * 0.5, h * 0.32), w * 0.13, Paint()..color = const Color(0xFFFF8A80));
     canvas.drawCircle(Offset(w * 0.44, h * 0.29), w * 0.05,
         Paint()..color = Colors.white.withOpacity(0.5));
 
@@ -188,7 +188,7 @@ class Rocket extends PositionComponent
       RRect.fromRectAndRadius(
           Rect.fromLTWH(w * 0.28, h * 0.74, w * 0.44, h * 0.07),
           const Radius.circular(3)),
-      Paint()..color = const Color(0xFF263238),
+      Paint()..color = const Color(0xFF4A0000),
     );
   }
 }
