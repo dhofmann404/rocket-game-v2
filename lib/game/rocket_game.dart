@@ -1,25 +1,25 @@
 import 'dart:math';
-import 'package:flame/components.dart';
 import 'package:flame/game.dart';
+import 'package:flutter/material.dart';
 import 'components/rocket.dart';
 import 'components/meteorite.dart';
 import 'components/star_field.dart';
 import 'components/hud.dart';
 
 class RocketGame extends FlameGame with HasCollisionDetection {
-  static const int maxLives = 3;
+  static const double initialSpeed = 80.0;
+  static const double speedIncreaseRate = 35.0;
   static const double initialSpawnInterval = 2.5;
 
   late Rocket rocket;
   late HudComponent hud;
 
+  double speed = initialSpeed;
   int score = 0;
-  int lives = maxLives;
+  int highscore = 0;
   bool isGameOver = false;
 
   double _spawnTimer = 0;
-  double _spawnInterval = initialSpawnInterval;
-  double _difficulty = 1.0;
   final Random _random = Random();
 
   @override
@@ -29,7 +29,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   Future<void> onLoad() async {
     await super.onLoad();
     add(StarField(count: 80));
-    rocket = Rocket(position: Vector2(size.x / 2, size.y - 120));
+    rocket = Rocket(position: Vector2(size.x / 2, size.y * 0.88));
     add(rocket);
     hud = HudComponent();
     add(hud);
@@ -40,55 +40,59 @@ class RocketGame extends FlameGame with HasCollisionDetection {
     super.update(dt);
     if (isGameOver) return;
 
+    speed += speedIncreaseRate * dt;
+
+    final spawnInterval =
+        (initialSpawnInterval * (initialSpeed / speed)).clamp(0.4, initialSpawnInterval);
     _spawnTimer += dt;
-    if (_spawnTimer >= _spawnInterval) {
+    if (_spawnTimer >= spawnInterval) {
       _spawnTimer = 0;
       _spawnMeteorite();
-      _difficulty += 0.015;
-      _spawnInterval =
-          (initialSpawnInterval / _difficulty).clamp(0.5, initialSpawnInterval);
     }
+
+    hud.updateSpeed(speed);
   }
 
   void _spawnMeteorite() {
-    final radius = 18.0 + _random.nextDouble() * 22;
+    final radius = 16.0 + _random.nextDouble() * 30;
     final x = radius + _random.nextDouble() * (size.x - radius * 2);
-    final speed = (70.0 + _random.nextDouble() * 50) * _difficulty;
+    final fallSpeed = 55.0 + _random.nextDouble() * 40 + speed * 0.2;
     add(Meteorite(
       position: Vector2(x, -radius),
       radius: radius,
-      speed: speed,
+      fallSpeed: fallSpeed,
     ));
   }
 
   void addScore(int points) {
     score += points;
-    hud.updateScore(score);
+    if (score > highscore) highscore = score;
+    hud.updateScore(score, highscore);
   }
 
-  void loseLife() {
-    lives--;
-    hud.updateLives(lives);
-    if (lives <= 0) {
-      isGameOver = true;
-      overlays.add('GameOver');
-    }
+  void applySpeedPenalty(double amount) {
+    speed = (speed - amount).clamp(initialSpeed * 0.4, double.infinity);
+  }
+
+  void triggerGameOver() {
+    if (isGameOver) return;
+    isGameOver = true;
+    if (score > highscore) highscore = score;
+    overlays.add('GameOver');
   }
 
   void resetGame() {
     score = 0;
-    lives = maxLives;
+    speed = initialSpeed;
     _spawnTimer = 0;
-    _spawnInterval = initialSpawnInterval;
-    _difficulty = 1.0;
     isGameOver = false;
 
-    children
-        .whereType<Meteorite>()
-        .toList()
-        .forEach((m) => m.removeFromParent());
+    children.whereType<Meteorite>().toList().forEach((m) => m.removeFromParent());
 
-    hud.updateScore(0);
-    hud.updateLives(maxLives);
+    // Reset rocket position
+    rocket.position = Vector2(size.x / 2, size.y * 0.88);
+
+    hud.updateScore(0, highscore);
+    hud.updateSpeed(initialSpeed);
   }
 }

@@ -4,47 +4,79 @@ import '../rocket_game.dart';
 
 class HudComponent extends Component with HasGameRef<RocketGame> {
   int _score = 0;
-  int _lives = RocketGame.maxLives;
+  int _highscore = 0;
+  double _speed = RocketGame.initialSpeed;
 
-  void updateScore(int score) => _score = score;
-  void updateLives(int lives) => _lives = lives;
+  void updateScore(int score, int highscore) {
+    _score = score;
+    _highscore = highscore;
+  }
+
+  void updateSpeed(double speed) => _speed = speed;
 
   @override
   void render(Canvas canvas) {
-    _drawScore(canvas);
-    _drawLives(canvas);
+    _drawText(canvas, 'SCORE  $_score', const Offset(14, 14), 20,
+        const Color(0xFF2196F3));
+    _drawText(canvas, 'BEST  $_highscore',
+        Offset(14, 42), 16, const Color(0xFF90CAF9));
+    _drawSpeed(canvas);
   }
 
-  void _drawScore(Canvas canvas) {
+  void _drawText(
+      Canvas canvas, String text, Offset offset, double fontSize, Color glowColor) {
     final tp = TextPainter(
       text: TextSpan(
-        text: 'SCORE  $_score',
-        style: const TextStyle(
+        text: text,
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: fontSize,
           fontWeight: FontWeight.bold,
-          shadows: [Shadow(color: Color(0xFF2196F3), blurRadius: 10)],
+          shadows: [Shadow(color: glowColor, blurRadius: 10)],
         ),
       ),
       textDirection: TextDirection.ltr,
     )..layout();
-    tp.paint(canvas, const Offset(14, 14));
+    tp.paint(canvas, offset);
   }
 
-  void _drawLives(Canvas canvas) {
-    for (int i = 0; i < _lives; i++) {
-      final tp = TextPainter(
-        text: const TextSpan(
-          text: '♥',
-          style: TextStyle(
-            color: Colors.red,
-            fontSize: 24,
-            shadows: [Shadow(color: Colors.redAccent, blurRadius: 8)],
-          ),
+  void _drawSpeed(Canvas canvas) {
+    final speedKmh = (_speed * 3.6).round(); // fun conversion
+    final label = 'SPEED  $speedKmh km/h';
+
+    // Speed bar background
+    final barW = 120.0;
+    final barH = 10.0;
+    final barX = gameRef.size.x - barW - 14;
+    final barY = 40.0;
+
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(Rect.fromLTWH(barX, barY, barW, barH),
+          const Radius.circular(5)),
+      Paint()..color = Colors.white.withOpacity(0.15),
+    );
+
+    final fill = ((_speed - RocketGame.initialSpeed) / 470).clamp(0.0, 1.0);
+    final fillColor = Color.lerp(const Color(0xFF4CAF50), Colors.red, fill)!;
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+          Rect.fromLTWH(barX, barY, barW * fill, barH), const Radius.circular(5)),
+      Paint()..color = fillColor,
+    );
+
+    // Speed text
+    final tp = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: TextStyle(
+          color: fillColor,
+          fontSize: 14,
+          fontWeight: FontWeight.bold,
+          shadows: [Shadow(color: fillColor, blurRadius: 8)],
         ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, Offset(gameRef.size.x - 38 - i * 30.0, 10));
-    }
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    tp.paint(canvas, Offset(barX, barY - 22));
   }
 }
