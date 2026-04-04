@@ -21,7 +21,7 @@ workflows:
     publishing:
       email:
         recipients:
-          - your@email.com
+          - hofmannd404@gmail.com
         notify:
           success: true
           failure: true
