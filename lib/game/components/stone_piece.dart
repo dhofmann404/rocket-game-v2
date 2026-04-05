@@ -19,7 +19,7 @@ class StonePiece extends Component with HasGameRef {
   static const double _lifetime = 3.2;
   static const double _gravity = 260.0;
   static const double _repulsionDuration = 1.5;
-  static const double _repulsionStrength = 550.0;
+  static const double _repulsionStrength = 200.0;
   static const double _airResistance = 0.22;
 
   StonePiece({
@@ -66,7 +66,7 @@ class StonePiece extends Component with HasGameRef {
         final relVel = velocity - other.velocity;
         final velAlongNormal = relVel.dot(normal);
         if (velAlongNormal < 0) {
-          const restitution = 0.55; // bounciness
+          const restitution = 0.25; // bounciness
           final impulse = normal * (-(1 + restitution) * velAlongNormal * 0.5);
           velocity += impulse;
           other.velocity -= impulse;

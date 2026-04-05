@@ -115,8 +115,8 @@ class Meteorite extends PositionComponent
   void _explode(double rocketSpeed, {required bool destroyed}) {
     final pieces = <StonePiece>[];
     final explosionForce = destroyed
-        ? (70.0 + rocketSpeed * 0.25)
-        : (30.0 + rocketSpeed * 0.1);
+        ? (35.0 + rocketSpeed * 0.12)
+        : (15.0 + rocketSpeed * 0.05);
 
     for (final cell in _cells) {
       // Start each piece already offset by its local position so they

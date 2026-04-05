@@ -8,7 +8,7 @@ import 'components/hud.dart';
 
 class RocketGame extends FlameGame with HasCollisionDetection {
   static const double initialSpeed = 80.0;
-  static const double speedIncreaseRate = 35.0;
+  static const double speedIncreaseRate = 55.0;
   static const double initialSpawnInterval = 2.5;
 
   late Rocket rocket;
@@ -56,7 +56,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   void _spawnMeteorite() {
     final radius = 16.0 + _random.nextDouble() * 30;
     final x = radius + _random.nextDouble() * (size.x - radius * 2);
-    final fallSpeed = 55.0 + _random.nextDouble() * 40 + speed * 0.2;
+    final fallSpeed = 27.0 + _random.nextDouble() * 20 + speed * 0.1;
     add(Meteorite(
       position: Vector2(x, -radius),
       radius: radius,
