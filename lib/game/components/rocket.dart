@@ -93,6 +93,11 @@ class Rocket extends PositionComponent
     _xVelocity = (_tilt >= 0 ? -1 : 1) * strength * 0.5;
   }
 
+  void applyTapImpulse(double direction) {
+    if (_exploded) return;
+    _xVelocity += direction * 400.0;
+  }
+
   void triggerExplosion() {
     _exploded = true;
   }

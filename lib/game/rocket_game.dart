@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'components/rocket.dart';
@@ -6,7 +7,7 @@ import 'components/meteorite.dart';
 import 'components/star_field.dart';
 import 'components/hud.dart';
 
-class RocketGame extends FlameGame with HasCollisionDetection {
+class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   static const double initialSpeed = 80.0;
   static const double speedIncreaseRate = 55.0;
   static const double initialSpawnInterval = 2.5;
@@ -68,6 +69,13 @@ class RocketGame extends FlameGame with HasCollisionDetection {
     score += points;
     if (score > highscore) highscore = score;
     hud.updateScore(score, highscore);
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    if (isGameOver) return;
+    final direction = event.canvasPosition.x > size.x / 2 ? 1.0 : -1.0;
+    rocket.applyTapImpulse(direction);
   }
 
   void applySpeedPenalty(double amount) {
