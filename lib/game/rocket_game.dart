@@ -29,7 +29,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   Future<void> onLoad() async {
     await super.onLoad();
     add(StarField(count: 80));
-    rocket = Rocket(position: Vector2(size.x / 2, size.y * 0.88));
+    rocket = Rocket(position: Vector2(size.x / 2, size.y * 0.82));
     add(rocket);
     hud = HudComponent();
     add(hud);
@@ -56,7 +56,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   void _spawnMeteorite() {
     final radius = 16.0 + _random.nextDouble() * 30;
     final x = radius + _random.nextDouble() * (size.x - radius * 2);
-    final fallSpeed = 27.0 + _random.nextDouble() * 20 + speed * 0.1;
+    final fallSpeed = 40.0 + _random.nextDouble() * 30 + speed * 0.15;
     add(Meteorite(
       position: Vector2(x, -radius),
       radius: radius,
