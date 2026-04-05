@@ -13,6 +13,7 @@ class Rocket extends PositionComponent
   double _tilt = 0.0;
   double _time = 0;
   bool _exploded = false;
+  bool _tapMode = false;
 
   // Y-axis physics (push-down / recoil)
   double _yVelocity = 0;
@@ -58,8 +59,8 @@ class Rocket extends PositionComponent
     if (_exploded) return;
     _time += dt;
 
-    // Left/right tilt
-    position.x += (_tilt * tiltSensitivity + _xVelocity) * dt;
+    // Left/right tilt (disabled once tap mode is active)
+    position.x += ((_tapMode ? 0.0 : _tilt * tiltSensitivity) + _xVelocity) * dt;
     position.x = position.x.clamp(size.x / 2, gameRef.size.x - size.x / 2);
     _xVelocity *= (1 - dt * 6);
 
@@ -95,7 +96,13 @@ class Rocket extends PositionComponent
 
   void applyTapImpulse(double direction) {
     if (_exploded) return;
+    _tapMode = true;
+    _tilt = 0.0;
     _xVelocity += direction * 400.0;
+  }
+
+  void resetTapMode() {
+    _tapMode = false;
   }
 
   void triggerExplosion() {

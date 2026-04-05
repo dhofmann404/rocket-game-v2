@@ -97,8 +97,9 @@ class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
 
     children.whereType<Meteorite>().toList().forEach((m) => m.removeFromParent());
 
-    // Reset rocket position
-    rocket.position = Vector2(size.x / 2, size.y * 0.88);
+    // Reset rocket position and controls
+    rocket.position = Vector2(size.x / 2, size.y * 0.82);
+    rocket.resetTapMode();
 
     hud.updateScore(0, highscore);
     hud.updateSpeed(initialSpeed);
