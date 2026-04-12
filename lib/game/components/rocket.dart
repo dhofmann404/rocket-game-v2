@@ -1,6 +1,7 @@
 import 'dart:async' as async;
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../rocket_game.dart';
@@ -40,11 +41,13 @@ class Rocket extends PositionComponent
       anchor: Anchor.center,
       position: size / 2,
     ));
-    try {
-      _accelSub = accelerometerEventStream().listen((event) {
-        _tilt = -event.x;
-      });
-    } catch (_) {}
+    if (!kIsWeb) {
+      try {
+        _accelSub = accelerometerEventStream().listen((event) {
+          _tilt = -event.x;
+        });
+      } catch (_) {}
+    }
   }
 
   @override
