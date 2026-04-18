@@ -2,8 +2,9 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart' hide Image;
+import '../rocket_game.dart';
 
-class StonePiece extends Component with HasGameRef {
+class StonePiece extends Component with HasGameRef<RocketGame> {
   Vector2 position;
   Vector2 velocity;
   double angle;
@@ -28,6 +29,18 @@ class StonePiece extends Component with HasGameRef {
   });
 
   @override
+  void onMount() {
+    super.onMount();
+    gameRef.activePieces.add(this);
+  }
+
+  @override
+  void onRemove() {
+    gameRef.activePieces.remove(this);
+    super.onRemove();
+  }
+
+  @override
   void update(double dt) {
     _age += dt;
     if (_age >= _lifetime) {
@@ -41,8 +54,8 @@ class StonePiece extends Component with HasGameRef {
     // Air resistance
     velocity.x *= (1 - _airResistance * dt);
 
-    // Collision against ALL stone pieces in the game
-    for (final other in gameRef.children.whereType<StonePiece>()) {
+    // Collision against ALL active stone pieces
+    for (final other in gameRef.activePieces) {
       if (other == this) continue;
       final diff = position - other.position;
       final dist = diff.length;

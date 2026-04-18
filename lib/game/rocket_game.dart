@@ -6,6 +6,7 @@ import 'components/rocket.dart';
 import 'components/meteorite.dart';
 import 'components/star_field.dart';
 import 'components/hud.dart';
+import 'components/stone_piece.dart';
 
 class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   static const double initialSpeed = 80.0;
@@ -19,6 +20,8 @@ class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   int score = 0;
   int highscore = 0;
   bool isGameOver = false;
+
+  final List<StonePiece> activePieces = [];
 
   double _spawnTimer = 0;
   final Random _random = Random();
@@ -96,6 +99,8 @@ class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     isGameOver = false;
 
     children.whereType<Meteorite>().toList().forEach((m) => m.removeFromParent());
+    children.whereType<StonePiece>().toList().forEach((p) => p.removeFromParent());
+    activePieces.clear();
 
     // Reset rocket position and controls
     rocket.position = Vector2(size.x / 2, size.y * 0.82);
