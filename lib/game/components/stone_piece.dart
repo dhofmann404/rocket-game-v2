@@ -2,9 +2,8 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart' hide Image;
-import '../rocket_game.dart';
 
-class StonePiece extends Component with HasGameRef<RocketGame> {
+class StonePiece extends Component with HasGameRef {
   Vector2 position;
   Vector2 velocity;
   double angle;
@@ -12,6 +11,8 @@ class StonePiece extends Component with HasGameRef<RocketGame> {
   final double scale;
   final List<Offset> shape;
   final Color color;
+
+  static final List<StonePiece> all = [];
 
   double _age = 0;
   static const double _lifetime = 3.2;
@@ -26,17 +27,13 @@ class StonePiece extends Component with HasGameRef<RocketGame> {
     required this.color,
     this.angle = 0,
     this.angularVelocity = 0,
-  });
-
-  @override
-  void onMount() {
-    super.onMount();
-    gameRef.activePieces.add(this);
+  }) {
+    all.add(this);
   }
 
   @override
   void onRemove() {
-    gameRef.activePieces.remove(this);
+    all.remove(this);
     super.onRemove();
   }
 
@@ -55,7 +52,7 @@ class StonePiece extends Component with HasGameRef<RocketGame> {
     velocity.x *= (1 - _airResistance * dt);
 
     // Collision against ALL active stone pieces
-    for (final other in gameRef.activePieces) {
+    for (final other in all) {
       if (other == this) continue;
       final diff = position - other.position;
       final dist = diff.length;

@@ -21,8 +21,6 @@ class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   int highscore = 0;
   bool isGameOver = false;
 
-  final List<StonePiece> activePieces = [];
-
   double _spawnTimer = 0;
   final Random _random = Random();
 
@@ -99,8 +97,7 @@ class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
     isGameOver = false;
 
     children.whereType<Meteorite>().toList().forEach((m) => m.removeFromParent());
-    children.whereType<StonePiece>().toList().forEach((p) => p.removeFromParent());
-    activePieces.clear();
+    StonePiece.all.toList().forEach((p) => p.removeFromParent());
 
     // Reset rocket position and controls
     rocket.position = Vector2(size.x / 2, size.y * 0.82);
