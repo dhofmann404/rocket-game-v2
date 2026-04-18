@@ -12,14 +12,9 @@ class StonePiece extends Component with HasGameRef {
   final List<Offset> shape;
   final Color color;
 
-  // Reference to sibling pieces for repulsion (first 0.35s)
-  final List<StonePiece> group;
-
   double _age = 0;
   static const double _lifetime = 3.2;
   static const double _gravity = 260.0;
-  static const double _repulsionDuration = 1.5;
-  static const double _repulsionStrength = 200.0;
   static const double _airResistance = 0.22;
 
   StonePiece({
@@ -28,7 +23,6 @@ class StonePiece extends Component with HasGameRef {
     required this.scale,
     required this.shape,
     required this.color,
-    required this.group,
     this.angle = 0,
     this.angularVelocity = 0,
   });
@@ -47,26 +41,23 @@ class StonePiece extends Component with HasGameRef {
     // Air resistance
     velocity.x *= (1 - _airResistance * dt);
 
-    // Piece-to-piece collision (runs entire lifetime)
-    for (final other in group) {
-      if (other == this || other.parent == null) continue;
+    // Collision against ALL stone pieces in the game
+    for (final other in gameRef.children.whereType<StonePiece>()) {
+      if (other == this) continue;
       final diff = position - other.position;
       final dist = diff.length;
-      // Use 1.8x scale to account for polygon shape extending beyond center
       final minDist = (scale + other.scale) * 1.8;
       if (dist < minDist && dist > 0.5) {
         final normal = diff.normalized();
         final overlap = minDist - dist;
 
-        // Position correction: push apart so they don't overlap
         position += normal * overlap * 0.5;
         other.position -= normal * overlap * 0.5;
 
-        // Velocity reflection along collision normal
         final relVel = velocity - other.velocity;
         final velAlongNormal = relVel.dot(normal);
         if (velAlongNormal < 0) {
-          const restitution = 0.25; // bounciness
+          const restitution = 0.25;
           final impulse = normal * (-(1 + restitution) * velAlongNormal * 0.5);
           velocity += impulse;
           other.velocity -= impulse;
@@ -76,7 +67,6 @@ class StonePiece extends Component with HasGameRef {
 
     position += velocity * dt;
     angle += angularVelocity * dt;
-    // Dampen spin
     angularVelocity *= (1 - dt * 1.8);
 
     // Bounce off screen bottom
