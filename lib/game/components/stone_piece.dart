@@ -2,6 +2,7 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flame/components.dart';
 import 'package:flutter/material.dart' hide Image;
+import 'meteorite.dart';
 
 class StonePiece extends Component with HasGameRef {
   Vector2 position;
@@ -70,6 +71,21 @@ class StonePiece extends Component with HasGameRef {
           final impulse = normal * (-(1 + restitution) * velAlongNormal * 0.5);
           velocity += impulse;
           other.velocity -= impulse;
+        }
+      }
+    }
+
+    // Collision against active meteorites (chain reaction)
+    for (final meteor in Meteorite.active.toList()) {
+      final diff = position - meteor.position;
+      final dist = diff.length;
+      final minDist = meteor.radius + scale * 1.5;
+      if (dist < minDist && dist > 0.5) {
+        final normal = diff.normalized();
+        final speed = velocity.dot(normal);
+        if (speed < 0) {
+          if (-speed > 55) meteor.chainExplode();
+          velocity -= normal * speed * 1.5;
         }
       }
     }

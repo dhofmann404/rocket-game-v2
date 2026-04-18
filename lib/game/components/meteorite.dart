@@ -20,6 +20,8 @@ class Meteorite extends PositionComponent
   final Random _rng = Random();
   late final List<_StoneCell> _cells;
 
+  static final List<Meteorite> active = [];
+
   Meteorite({
     required Vector2 position,
     required this.radius,
@@ -35,6 +37,13 @@ class Meteorite extends PositionComponent
     await super.onLoad();
     _cells = _generateCells();
     add(CircleHitbox(radius: radius));
+    active.add(this);
+  }
+
+  @override
+  void onRemove() {
+    active.remove(this);
+    super.onRemove();
   }
 
   List<_StoneCell> _generateCells() {
@@ -110,6 +119,14 @@ class Meteorite extends PositionComponent
       }
       removeFromParent();
     }
+  }
+
+  void chainExplode() {
+    if (_destroyed) return;
+    _destroyed = true;
+    _explode(80.0, destroyed: true);
+    gameRef.addScore((radius / 5).round() * 5);
+    removeFromParent();
   }
 
   void _explode(double rocketSpeed, {required bool destroyed}) {
