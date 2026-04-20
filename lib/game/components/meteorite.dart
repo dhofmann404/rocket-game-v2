@@ -130,20 +130,16 @@ class Meteorite extends PositionComponent
   }
 
   void _explode(double rocketSpeed, {required bool destroyed}) {
-    final pieces = <StonePiece>[];
     final explosionForce = destroyed
-        ? (70.0 + rocketSpeed * 0.25)
-        : (30.0 + rocketSpeed * 0.1);
+        ? (35.0 + rocketSpeed * 0.12)
+        : (15.0 + rocketSpeed * 0.05);
 
     for (final cell in _cells) {
-      // Start each piece already offset by its local position so they
-      // don't all spawn at the same point (improves repulsion effectiveness)
       final worldPos = Vector2(
         position.x + cell.localOffset.dx,
         position.y + cell.localOffset.dy,
       );
 
-      // Direction: outward from center
       Vector2 baseDir;
       if (cell.localOffset.dx.abs() < 1 && cell.localOffset.dy.abs() < 1) {
         final a = _rng.nextDouble() * pi * 2;
@@ -152,7 +148,6 @@ class Meteorite extends PositionComponent
         baseDir = Vector2(cell.localOffset.dx, cell.localOffset.dy).normalized();
       }
 
-      // Slight random spread ±30°
       final spread = (_rng.nextDouble() - 0.5) * pi * 0.35;
       final dir = Vector2(
         baseDir.x * cos(spread) - baseDir.y * sin(spread),
@@ -162,7 +157,7 @@ class Meteorite extends PositionComponent
       final speed = explosionForce * (0.7 + _rng.nextDouble() * 0.6);
       final upBias = destroyed ? -50.0 : 20.0;
 
-      final piece = StonePiece(
+      gameRef.add(StonePiece(
         position: worldPos,
         velocity: Vector2(dir.x * speed, dir.y * speed + upBias),
         scale: cell.scale,
@@ -170,13 +165,7 @@ class Meteorite extends PositionComponent
         color: cell.color,
         angle: cell.rotation,
         angularVelocity: (_rng.nextDouble() - 0.5) * 8,
-        group: pieces,
-      );
-      pieces.add(piece);
-    }
-
-    for (final p in pieces) {
-      gameRef.add(p);
+      ));
     }
   }
 

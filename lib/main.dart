@@ -7,11 +7,17 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   runApp(
-    GameWidget<RocketGame>(
-      game: RocketGame(),
-      overlayBuilderMap: {
-        'GameOver': (context, game) => _GameOverOverlay(game: game),
-      },
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: SafeArea(
+        bottom: false,
+        child: GameWidget<RocketGame>(
+          game: RocketGame(),
+          overlayBuilderMap: {
+            'GameOver': (context, game) => _GameOverOverlay(game: game),
+          },
+        ),
+      ),
     ),
   );
 }

@@ -1,6 +1,7 @@
 import 'dart:async' as async;
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import '../rocket_game.dart';
@@ -13,6 +14,7 @@ class Rocket extends PositionComponent
   double _tilt = 0.0;
   double _time = 0;
   bool _exploded = false;
+  bool _tapMode = false;
 
   // Y-axis physics (push-down / recoil)
   double _yVelocity = 0;
@@ -39,11 +41,13 @@ class Rocket extends PositionComponent
       anchor: Anchor.center,
       position: size / 2,
     ));
-    try {
-      _accelSub = accelerometerEventStream().listen((event) {
-        _tilt = -event.x;
-      });
-    } catch (_) {}
+    if (!kIsWeb) {
+      try {
+        _accelSub = accelerometerEventStream().listen((event) {
+          _tilt = -event.x;
+        });
+      } catch (_) {}
+    }
   }
 
   @override
@@ -58,8 +62,8 @@ class Rocket extends PositionComponent
     if (_exploded) return;
     _time += dt;
 
-    // Left/right tilt
-    position.x += (_tilt * tiltSensitivity + _xVelocity) * dt;
+    // Left/right tilt (disabled once tap mode is active)
+    position.x += ((_tapMode ? 0.0 : _tilt * tiltSensitivity) + _xVelocity) * dt;
     position.x = position.x.clamp(size.x / 2, gameRef.size.x - size.x / 2);
     _xVelocity *= (1 - dt * 6);
 
@@ -91,6 +95,17 @@ class Rocket extends PositionComponent
     }
     // Slight random X shake
     _xVelocity = (_tilt >= 0 ? -1 : 1) * strength * 0.5;
+  }
+
+  void applyTapImpulse(double direction) {
+    if (_exploded) return;
+    _tapMode = true;
+    _tilt = 0.0;
+    _xVelocity += direction * 400.0;
+  }
+
+  void resetTapMode() {
+    _tapMode = false;
   }
 
   void triggerExplosion() {
@@ -186,7 +201,7 @@ class Rocket extends PositionComponent
     // Nozzle
     canvas.drawRRect(
       RRect.fromRectAndRadius(
-          Rect.fromLTWH(w * 0.28, h * 0.74, w * 0.44, h * 0.07),
+          Rect.fromLTWH(w * 0.28, h * 0.74, w * 0.44, h * 0.13),
           const Radius.circular(3)),
       Paint()..color = const Color(0xFF4A0000),
     );

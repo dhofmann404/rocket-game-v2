@@ -1,14 +1,16 @@
 import 'dart:math';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'components/rocket.dart';
 import 'components/meteorite.dart';
 import 'components/star_field.dart';
 import 'components/hud.dart';
+import 'components/stone_piece.dart';
 
-class RocketGame extends FlameGame with HasCollisionDetection {
+class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
   static const double initialSpeed = 80.0;
-  static const double speedIncreaseRate = 35.0;
+  static const double speedIncreaseRate = 55.0;
   static const double initialSpawnInterval = 2.5;
 
   late Rocket rocket;
@@ -29,7 +31,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   Future<void> onLoad() async {
     await super.onLoad();
     add(StarField(count: 80));
-    rocket = Rocket(position: Vector2(size.x / 2, size.y * 0.88));
+    rocket = Rocket(position: Vector2(size.x / 2, size.y * 0.82));
     add(rocket);
     hud = HudComponent();
     add(hud);
@@ -56,7 +58,7 @@ class RocketGame extends FlameGame with HasCollisionDetection {
   void _spawnMeteorite() {
     final radius = 16.0 + _random.nextDouble() * 30;
     final x = radius + _random.nextDouble() * (size.x - radius * 2);
-    final fallSpeed = 55.0 + _random.nextDouble() * 40 + speed * 0.2;
+    final fallSpeed = 40.0 + _random.nextDouble() * 30 + speed * 0.15;
     add(Meteorite(
       position: Vector2(x, -radius),
       radius: radius,
@@ -68,6 +70,13 @@ class RocketGame extends FlameGame with HasCollisionDetection {
     score += points;
     if (score > highscore) highscore = score;
     hud.updateScore(score, highscore);
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    if (isGameOver) return;
+    final direction = event.canvasPosition.x > size.x / 2 ? 1.0 : -1.0;
+    rocket.applyTapImpulse(direction);
   }
 
   void applySpeedPenalty(double amount) {
@@ -88,9 +97,11 @@ class RocketGame extends FlameGame with HasCollisionDetection {
     isGameOver = false;
 
     children.whereType<Meteorite>().toList().forEach((m) => m.removeFromParent());
+    StonePiece.all.toList().forEach((p) => p.removeFromParent());
 
-    // Reset rocket position
-    rocket.position = Vector2(size.x / 2, size.y * 0.88);
+    // Reset rocket position and controls
+    rocket.position = Vector2(size.x / 2, size.y * 0.82);
+    rocket.resetTapMode();
 
     hud.updateScore(0, highscore);
     hud.updateSpeed(initialSpeed);
