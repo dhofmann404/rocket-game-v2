@@ -9,7 +9,7 @@ import 'components/hud.dart';
 import 'components/stone_piece.dart';
 
 class RocketGame extends FlameGame with HasCollisionDetection, TapCallbacks {
-  static const double initialSpeed = 80.0;
+  static const double initialSpeed = 55.0;
   static const double speedIncreaseRate = 55.0;
   static const double initialSpawnInterval = 2.5;
 
